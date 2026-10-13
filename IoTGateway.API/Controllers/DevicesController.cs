@@ -17,13 +17,13 @@ public class DevicesController : ControllerBase
     }
 
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Device>>> GetDevices()
-    {
-        return await _context.Devices
-            .AsNoTracking()
-            .ToListAsync();
-    }
+[HttpGet]
+public async Task<ActionResult<IEnumerable<Device>>> GetDevices()
+{
+    return await _context.Devices
+        .Include(d => d.Telemetries) // CARICA LE TELEMETRIE COLLEGATE
+        .ToListAsync();
+}
 
 
     [HttpGet("{id:guid}")]

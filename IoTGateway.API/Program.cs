@@ -1,6 +1,7 @@
 using IoTGateway.API.Data;
 using Microsoft.EntityFrameworkCore;
-
+using IoTGateway.API.Services; //serve per mqtt
+using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Registra DbContext con PostgreSQL
@@ -8,10 +9,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Ignora i cicli di riferimento durante la serializzazione JSON
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); // Ora funzionerà grazie al pacchetto installato
-
+builder.Services.AddHostedService<MqttBackgroundService>();
 var app = builder.Build();
 
 // Abilitiamo Swagger sempre durante lo sviluppo locale
